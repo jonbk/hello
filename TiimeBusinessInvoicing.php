@@ -2,6 +2,7 @@
 
 namespace App\Entity\TiimeBusiness;
 
+use App\Entity\BankTransaction;
 use App\Entity\Invoicing\Invoice;
 use App\Entity\WalletCompany;
 use Doctrine\ORM\Mapping as ORM;
@@ -44,16 +45,36 @@ class TiimeBusinessInvoicing
      */
     private \DateTimeInterface $endDate;
 
+    /**
+     * @ORM\OneToOne(targetEntity=BankTransaction::class)
+     * @ORM\JoinColumn(name="tiime_transaction_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private ?BankTransaction $tiimeTransaction;
+
+    /**
+     * @ORM\OneToOne(targetEntity=BankTransaction::class)
+     * @ORM\JoinColumn(name="client_transaction_id", referencedColumnName="id", onDelete="SET NULL")
+     */
+    private ?BankTransaction $clientTransaction;
+
     public function __construct(
         WalletCompany $walletCompany,
         Invoice $invoice,
         \DateTimeInterface $startDate,
         \DateTimeInterface $endDate
     ) {
-        $this->walletCompany = $walletCompany;
-        $this->invoice       = $invoice;
-        $this->startDate     = $startDate;
-        $this->endDate       = $endDate;
+        $this->walletCompany     = $walletCompany;
+        $this->invoice           = $invoice;
+        $this->startDate         = $startDate;
+        $this->endDate           = $endDate;
+        $this->tiimeTransaction  = null;
+        $this->clientTransaction = null;
+    }
+
+    public function registerDebit(BankTransaction $tiimeTransaction, BankTransaction $clientTransaction): void
+    {
+        $this->tiimeTransaction  = $tiimeTransaction;
+        $this->clientTransaction = $clientTransaction;
     }
 
     public function getId(): ?int
