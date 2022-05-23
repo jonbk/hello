@@ -6,7 +6,6 @@ use App\Accounting\Core\Handler\LabelHandler;
 use App\Entity\BankTransaction;
 use App\Entity\Document\Receipt;
 use App\Entity\TiimeBusiness\TiimeBusinessInvoicing;
-use App\Entity\WalletTransfer;
 use App\Enums\EnumBankTransactionOperationType;
 use App\Enums\EnumBankTransactionUserType;
 use App\Enums\EnumCurrency;
@@ -75,8 +74,8 @@ class TiimeBusinessSyncInvoicesCommand extends Command
 
             $this->entityManager->getFilters()->disable('deleted_bank_transaction');
 
-            $date = '2022-05-16';
-//            $date = '2022-05-13';
+//            $date = '2022-05-16';
+            $date = '2022-05-13';
 //            $date = '2022-04-28';
 
             $clientTransactionRefused = $this->entityManager->createQueryBuilder()
@@ -192,7 +191,7 @@ class TiimeBusinessSyncInvoicesCommand extends Command
                     $this->receiptHandler->addReceipt($receipt, $file);
                     $this->receiptMatcherHandler->addReceiptBankTransactionMatching($clientTransaction, $receipt, false, EnumSource::CHRONOS);
                 }
-            }catch (\Exception $e){
+            } catch (\Exception $e) {
                 dump($record->getInvoice()->getId());
             }
         }
@@ -202,28 +201,28 @@ class TiimeBusinessSyncInvoicesCommand extends Command
 
     private function missingTransfers()
     {
-        $transfers = json_decode(file_get_contents('transfers.json'), true);
-
-        $missingTransfers = [];
-
-        foreach ($transfers as $transfer) {
-            $walletTransfer = $this->entityManager->createQueryBuilder()
-                ->select('wallet_transfer')
-                ->from(WalletTransfer::class, 'wallet_transfer')
-                ->where('wallet_transfer.treezorTransactionId = :transaction')
-                ->setParameters([
-                    ':transaction' => $transfer['transferId'],
-                ])
-                ->getQuery()
-                ->getOneOrNullResult();
-
-            if (false === $walletTransfer instanceof WalletTransfer) {
-                $missingTransfers[] = $transfer;
-            }
-        }
-
-        dd($missingTransfers);
-
+//        $transfers = json_decode(file_get_contents('transfers.json'), true);
+//
+//        $missingTransfers = [];
+//
+//        foreach ($transfers as $transfer) {
+//            $walletTransfer = $this->entityManager->createQueryBuilder()
+//                ->select('wallet_transfer')
+//                ->from(WalletTransfer::class, 'wallet_transfer')
+//                ->where('wallet_transfer.treezorTransactionId = :transaction')
+//                ->setParameters([
+//                    ':transaction' => $transfer['transferId'],
+//                ])
+//                ->getQuery()
+//                ->getOneOrNullResult();
+//
+//            if (false === $walletTransfer instanceof WalletTransfer) {
+//                $missingTransfers[] = $transfer;
+//            }
+//        }
+//
+//        dd($missingTransfers);
+//
 //        foreach ($missingTransfers as $missingTransfer) {
 //            $wba = $this->entityManager->createQueryBuilder()
 //                ->select('wallet_bank_account')
