@@ -168,8 +168,9 @@ class TiimeBusinessSyncInvoicesCommand extends Command
                 $this->bankTransactionRepository->save($tiimeTransaction);
             }
 
-            $this->invoiceMatcherHandler->matchInvoiceBankTransaction($tiimeTransaction, $record->getInvoice(), EnumInvoiceBankTransactionMatchingType::CHRONOS);
-
+            if (true === $tiimeTransaction->getInvoiceBankTransactions()->isEmpty()) {
+                $this->invoiceMatcherHandler->matchInvoiceBankTransaction($tiimeTransaction, $record->getInvoice(), EnumInvoiceBankTransactionMatchingType::CHRONOS);
+            }
 
             if (false === $clientReceipt instanceof Receipt) {
                 $file = $this->fileHandler->temporaryFile($this->invoiceHandler->getInvoicePdf($record->getInvoice()));
