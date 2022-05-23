@@ -172,24 +172,28 @@ class TiimeBusinessSyncInvoicesCommand extends Command
                 $this->invoiceMatcherHandler->matchInvoiceBankTransaction($tiimeTransaction, $record->getInvoice(), EnumInvoiceBankTransactionMatchingType::CHRONOS);
             }
 
-            if (false === $clientReceipt instanceof Receipt) {
-                $file = $this->fileHandler->temporaryFile($this->invoiceHandler->getInvoicePdf($record->getInvoice()));
+            try {
+                if (false === $clientReceipt instanceof Receipt) {
+                    $file = $this->fileHandler->temporaryFile($this->invoiceHandler->getInvoicePdf($record->getInvoice()));
 
-                $documentCategory = $this->documentCategoryRepository->getReservedCategory($clientCompany, Receipt::class);
+                    $documentCategory = $this->documentCategoryRepository->getReservedCategory($clientCompany, Receipt::class);
 
-                $receipt = (new Receipt(EnumDocumentSource::ACCOUNTANT, $documentCategory, $record->getInvoice()->getPdfFilename()))
-                    ->setAmount($record->getInvoice()->getTotalIncludingTaxes())
-                    ->setCurrency(EnumCurrency::EURO)
-                    ->setDate($record->getInvoice()->getEmissionDate())
-                    ->setWording('Tiime Business')
-                    ->setVatAmount($record->getInvoice()->getTotalIncludingTaxes() - $record->getInvoice()->getTotalExcludingTaxes());
+                    $receipt = (new Receipt(EnumDocumentSource::ACCOUNTANT, $documentCategory, $record->getInvoice()->getPdfFilename()))
+                        ->setAmount($record->getInvoice()->getTotalIncludingTaxes())
+                        ->setCurrency(EnumCurrency::EURO)
+                        ->setDate($record->getInvoice()->getEmissionDate())
+                        ->setWording('Tiime Business')
+                        ->setVatAmount($record->getInvoice()->getTotalIncludingTaxes() - $record->getInvoice()->getTotalExcludingTaxes());
 
-                if (true === $clientCompany->isTiimeExpert()) {
-                    $receipt->setLabel($this->labelHandler->findOrCreateLabel($clientCompany, WalletBankAccountHandler::TIIME_BANK));
+                    if (true === $clientCompany->isTiimeExpert()) {
+                        $receipt->setLabel($this->labelHandler->findOrCreateLabel($clientCompany, WalletBankAccountHandler::TIIME_BANK));
+                    }
+
+                    $this->receiptHandler->addReceipt($receipt, $file);
+                    $this->receiptMatcherHandler->addReceiptBankTransactionMatching($clientTransaction, $receipt, false, EnumSource::CHRONOS);
                 }
-
-                $this->receiptHandler->addReceipt($receipt, $file);
-                $this->receiptMatcherHandler->addReceiptBankTransactionMatching($clientTransaction, $receipt, false, EnumSource::CHRONOS);
+            }catch (\Exception $e){
+                dump($record->getInvoice()->getId());
             }
         }
 
