@@ -75,8 +75,8 @@ class TiimeBusinessSyncInvoicesCommand extends Command
             $this->entityManager->getFilters()->disable('deleted_bank_transaction');
 
 //            $date = '2022-05-16';
-            $date = '2022-05-13';
-//            $date = '2022-04-28';
+ //           $date = '2022-05-13';
+            $date = '2022-04-28';
 
             $clientTransactionRefused = $this->entityManager->createQueryBuilder()
                 ->select('bank_transaction')
