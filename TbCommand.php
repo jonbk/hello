@@ -49,7 +49,7 @@ class TbCommand extends Command
             }
         }
 
-        dd(count($t));
+        dd(json_encode($t));
 
         return self::SUCCESS;
     }
