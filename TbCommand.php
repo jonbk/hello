@@ -25,25 +25,28 @@ class TbCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $client = $this->bankApi->getGuzzleClient();
+        $t = [];
 
-        $res = $client->request(
-            Request::METHOD_GET,
-            'transfers',
-            [
-                'query' => [
-                    'transferTypeId' => '3',
-                    'createdDateFrom' => '2022-06-01',
-                    'beneficiaryWalletId' => '5399517',
-                    'pageCount' => '200',
-                    'pageNumber' => '1',
+        for ($i = 1; $i <= 25; $i++) {
+            $res = $client->request(
+                Request::METHOD_GET,
+                'transfers',
+                [
+                    'query' => [
+                        'transferTypeId' => '3',
+                        'createdDateFrom' => '2022-06-01',
+                        'beneficiaryWalletId' => '5399517',
+                        'pageCount' => '200',
+                        'pageNumber' => $i,
+                    ]
                 ]
-            ]
-        );
+            );
 
-        $treezorTransfers = json_decode($res->getBody()->getContents(), true);
-        $treezorTransfers = $treezorTransfers['transfers'][0];
+            $treezorTransfers = json_decode($res->getBody()->getContents(), true);
+            $t = $t + $treezorTransfers['transfers'];
+        }
 
-        dd($treezorTransfers);
+        dd(json_encode($t));
 
         return self::SUCCESS;
     }
