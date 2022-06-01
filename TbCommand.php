@@ -44,8 +44,7 @@ class TbCommand extends Command
 
             $treezorTransfers = json_decode($res->getBody()->getContents(), true);
 
-            dd($treezorTransfers);
-            foreach ($treezorTransfers[0]['transfers'] as $treezorTransfer){
+            foreach ($treezorTransfers['transfers'][0] as $treezorTransfer){
                 $t[] = $treezorTransfer;
             }
         }
