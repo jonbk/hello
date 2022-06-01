@@ -27,7 +27,7 @@ class TbCommand extends Command
         $client = $this->bankApi->getGuzzleClient();
         $t = [];
 
-        for ($i = 1; $i <= 25; $i++) {
+        for ($i = 1; $i <= 21; $i++) {
             $res = $client->request(
                 Request::METHOD_GET,
                 'transfers',
@@ -43,10 +43,13 @@ class TbCommand extends Command
             );
 
             $treezorTransfers = json_decode($res->getBody()->getContents(), true);
-            $t = $t + $treezorTransfers['transfers'];
+
+            foreach ($treezorTransfers as $treezorTransfer){
+                $t[] = $treezorTransfer;
+            }
         }
 
-        dd(json_encode($t));
+        dd(count($t));
 
         return self::SUCCESS;
     }
