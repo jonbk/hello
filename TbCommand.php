@@ -49,7 +49,9 @@ class TbCommand extends Command
             }
         }
 
-        dd(json_encode($t));
+        $json = json_encode($t);
+
+        file_put_contents("transfers.json", $json);
 
         return self::SUCCESS;
     }
