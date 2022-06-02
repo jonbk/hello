@@ -86,7 +86,7 @@ class TiimeBusinessFixCommand extends Command
                         'label' => 'Remboursement frais bancaires',
                         'currency' => EnumCurrency::EURO,
                         'transferTypeId' => '4',
-                        'transferTag' => sprintf('credit_%d', $invoice->getId()),
+                        'transferTag' => sprintf('credit_%d', $toRefund['transferId']),
                     ];
 
                     dd($toRefund, $json);
