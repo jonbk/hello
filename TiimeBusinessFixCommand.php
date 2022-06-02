@@ -2,18 +2,23 @@
 
 namespace App\Command;
 
+use App\Entity\TiimeBusiness\TiimeBusinessInvoicing;
 use App\External\Treezor\BankApi;
+use App\Traits\EntityManagerAwareTrait;
+use Doctrine\ORM\AbstractQuery;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 #[AsCommand(
     name: 'tiime-business:fix'
 )]
 class TiimeBusinessFixCommand extends Command
 {
+    use EntityManagerAwareTrait;
+
+
     public function __construct(
         private BankApi $bankApi
     )
@@ -25,65 +30,34 @@ class TiimeBusinessFixCommand extends Command
     {
         $client = $this->bankApi->getGuzzleClient();
 
-        $transfersToTiime = [];
+        $invoices = $this->entityManager->createQueryBuilder()
+            ->select('invoice.id as invoice_id')
+            ->from(TiimeBusinessInvoicing::class, 'tiime_business_invoicing')
+            ->innerJoin('tiime_business_invoicing.invoice', 'invoice')
+            ->where('tiime_business_invoicing.startDate = :date')
+            ->setParameters([
+                ':date' => '2022-04-01'
+            ])
+            ->getQuery()
+            ->getResult(AbstractQuery::HYDRATE_SCALAR);
 
-        for ($i = 1; $i < 200; $i++) {
+        foreach ($invoices as $invoice) {
+            $invoiceId = $invoice['invoice_id'];
+
             $res = $client->request(
-                Request::METHOD_GET,
+                'GET',
                 'transfers',
                 [
                     'query' => [
-                        'transferTypeId' => '3',
-                        'createdDateFrom' => '2022-06-01',
-                        'beneficiaryWalletId' => '5399517',
-                        'pageCount' => '200',
-                        'pageNumber' => $i
-                    ],
+                        'transferTag' => 'invoice_' . $invoiceId,
+                    ]
                 ]
             );
 
-            $treezorTransfers = json_decode($res->getBody()->getContents(), true);
+            $treezorTransfers = json_decode($res->getBody()->getContents(), true)['transfers'];
 
-            if(count($treezorTransfers['transfers']) === 0){
-                break;
-            }
-
-            foreach ($treezorTransfers['transfers'] as $treezorTransfer) {
-                $transfersToTiime[] = $treezorTransfer;
-            }
+            dd($treezorTransfers);
         }
-
-        $transfersToClient = [];
-
-        for ($i = 1; $i < 200; $i++) {
-            $res = $client->request(
-                Request::METHOD_GET,
-                'transfers',
-                [
-                    'query' => [
-                        'transferTypeId' => '4',
-                        'createdDateFrom' => '2022-06-01',
-                        'walletId' => '5399517',
-                        'pageCount' => '200',
-                        'pageNumber' => $i
-                    ],
-                ]
-            );
-
-            $treezorTransfers = json_decode($res->getBody()->getContents(), true);
-
-            if(count($treezorTransfers['transfers']) === 0){
-                break;
-            }
-
-            foreach ($treezorTransfers['transfers'] as $treezorTransfer) {
-                $transfersToClient[] = $treezorTransfer;
-            }
-        }
-
-        file_put_contents("debit.json", json_encode($transfersToTiime));
-
-        file_put_contents("refund.json", json_encode($transfersToClient));
 
         return Command::SUCCESS;
     }
