@@ -56,6 +56,22 @@ class TiimeBusinessFixCommand extends Command
 
             $treezorTransfers = json_decode($res->getBody()->getContents(), true)['transfers'];
 
+            foreach ($treezorTransfers as $index => $treezorTransfer){
+                $res = $client->request(
+                    'GET',
+                    'transfers',
+                    [
+                        'query' => [
+                            'transferTag' => 'credit_' . $treezorTransfer['transferId'],
+                        ]
+                    ]
+                );
+
+                $refund = json_decode($res->getBody()->getContents(), true)['transfers'];
+
+                $treezorTransfers[$index]['refund'] = $refund;
+            }
+
             dd($treezorTransfers);
         }
 
