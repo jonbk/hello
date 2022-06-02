@@ -55,7 +55,8 @@ class TiimeBusinessFixCommand extends Command
             );
 
             $debits = json_decode($res->getBody()->getContents(), true)['transfers'];
-            $toRefund = [];
+            $toRefunds = [];
+            $hello = [];
             foreach ($debits as $index => $debit) {
                 $res = $client->request(
                     'GET',
@@ -70,11 +71,17 @@ class TiimeBusinessFixCommand extends Command
                 $refund = json_decode($res->getBody()->getContents(), true)['transfers'];
 
                 if (true === empty($refund)) {
-                    $toRefund[] = $debit;
+                    $toRefunds[] = $debit;
                 }
             }
 
-            dd($toRefund);
+            foreach ($toRefunds as $index => $toRefund) {
+                if ($index > 0) {
+                    $hello[] = $toRefund;
+                }
+            }
+
+            dd($hello);
         }
 
         return Command::SUCCESS;
