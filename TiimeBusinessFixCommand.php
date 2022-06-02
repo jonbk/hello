@@ -57,7 +57,7 @@ class TiimeBusinessFixCommand extends Command
 
             $debits = json_decode($res->getBody()->getContents(), true)['transfers'];
             $toRefunds = [];
-            $hello = [];
+
             foreach ($debits as $debit) {
                 $res = $client->request(
                     'GET',
@@ -76,7 +76,6 @@ class TiimeBusinessFixCommand extends Command
                 }
             }
 
-            dd($toRefunds);
             foreach ($toRefunds as $index => $toRefund) {
                 if ($index > 0) {
                     $json = [
@@ -90,23 +89,15 @@ class TiimeBusinessFixCommand extends Command
                         'transferTag' => sprintf('credit_%d', $toRefund['transferId']),
                     ];
 
-                    dd($toRefund, $json);
-//                    $res = $client->request(
-//                        'POST',
-//                        'transfers',
-//                        [
-//                            'json' => [
-//                                'accessTag' => sprintf('credit_%d', $toRefund['transferId']),
-//                                'walletId' => $toRefund['beneficiaryWalletId'],
-//                                'beneficiaryWalletId' => $toRefund['walletId'],
-//                                'amount' => $toRefund['amount'],
-//                                'label' => 'Remboursement frais bancaires',
-//                                'currency' => EnumCurrency::EURO,
-//                                'transferTypeId' => '4',
-//                                'transferTag' => sprintf('credit_%d', $invoice->getId()),
-//                            ],
-//                        ]
-//                    );
+                    $res = $client->request(
+                        'POST',
+                        'transfers',
+                        [
+                            'json' => $json,
+                        ]
+                    );
+
+                    $done = json_decode($res->getBody()->getContents(), true);
                 }
             }
         }
