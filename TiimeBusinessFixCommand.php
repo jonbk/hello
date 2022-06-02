@@ -36,6 +36,7 @@ class TiimeBusinessFixCommand extends Command
             ->from(TiimeBusinessInvoicing::class, 'tiime_business_invoicing')
             ->innerJoin('tiime_business_invoicing.invoice', 'invoice')
             ->where('tiime_business_invoicing.startDate = :date')
+            ->orderBy('invoice.id')
             ->setParameters([
                 ':date' => '2022-04-01'
             ])
