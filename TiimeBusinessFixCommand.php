@@ -57,7 +57,7 @@ class TiimeBusinessFixCommand extends Command
             $debits = json_decode($res->getBody()->getContents(), true)['transfers'];
             $toRefunds = [];
             $hello = [];
-            foreach ($debits as $index => $debit) {
+            foreach ($debits as $debit) {
                 $res = $client->request(
                     'GET',
                     'transfers',
