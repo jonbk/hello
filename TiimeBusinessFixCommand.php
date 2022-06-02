@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\TiimeBusiness\TiimeBusinessInvoicing;
+use App\Enums\EnumCurrency;
 use App\External\Treezor\BankApi;
 use App\Traits\EntityManagerAwareTrait;
 use Doctrine\ORM\AbstractQuery;
@@ -77,11 +78,36 @@ class TiimeBusinessFixCommand extends Command
 
             foreach ($toRefunds as $index => $toRefund) {
                 if ($index > 0) {
-                    $hello[] = $toRefund;
+                    $json = [
+                        'accessTag' => sprintf('credit_%d', $toRefund['transferId']),
+                        'walletId' => $toRefund['beneficiaryWalletId'],
+                        'beneficiaryWalletId' => $toRefund['walletId'],
+                        'amount' => $toRefund['amount'],
+                        'label' => 'Remboursement frais bancaires',
+                        'currency' => EnumCurrency::EURO,
+                        'transferTypeId' => '4',
+                        'transferTag' => sprintf('credit_%d', $invoice->getId()),
+                    ];
+
+                    dd($toRefund, $json);
+//                    $res = $client->request(
+//                        'POST',
+//                        'transfers',
+//                        [
+//                            'json' => [
+//                                'accessTag' => sprintf('credit_%d', $toRefund['transferId']),
+//                                'walletId' => $toRefund['beneficiaryWalletId'],
+//                                'beneficiaryWalletId' => $toRefund['walletId'],
+//                                'amount' => $toRefund['amount'],
+//                                'label' => 'Remboursement frais bancaires',
+//                                'currency' => EnumCurrency::EURO,
+//                                'transferTypeId' => '4',
+//                                'transferTag' => sprintf('credit_%d', $invoice->getId()),
+//                            ],
+//                        ]
+//                    );
                 }
             }
-
-            dd($toRefunds, $hello);
         }
 
         return Command::SUCCESS;
