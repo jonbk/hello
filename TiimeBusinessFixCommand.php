@@ -81,7 +81,7 @@ class TiimeBusinessFixCommand extends Command
                 }
             }
 
-            dd($hello);
+            dd($toRefunds, $hello);
         }
 
         return Command::SUCCESS;
