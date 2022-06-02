@@ -1463,6 +1463,21 @@ class BankApi
         return $this->serializer->denormalize($treezorTransfer, TreezorTransfer::class);
     }
 
+    public function findTransfers(array $queryParameters): array
+    {
+        $res = $this->guzzleClient->request(
+            Request::METHOD_GET,
+            'transfers',
+            [
+                'query' => $queryParameters,
+            ]
+        );
+
+        $treezorTransfers = json_decode($res->getBody()->getContents(), true);
+
+        return $treezorTransfers['transfers'];
+    }
+
     public function getGuzzleClient(): Client
     {
         return $this->guzzleClient;
