@@ -76,6 +76,7 @@ class TiimeBusinessFixCommand extends Command
                 }
             }
 
+            dd($toRefunds);
             foreach ($toRefunds as $index => $toRefund) {
                 if ($index > 0) {
                     $json = [
